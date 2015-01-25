@@ -30,7 +30,7 @@ We'll start by make a new app, following the procedure we had last time. I calle
         </activity>
 ```
 
-This little snippet declares the activity we have created and the `<intent-filter>` section says it is the activity to open when the user starts the app.
+All activities of our app need to be registered in `AndroidManifest.xml`. This little snippet declares the activity we have created and the `<intent-filter>` section says it is the activity to open when the user starts the app.
 
 Let's now turn our attention to `MainActivity.java`. To understand all the code in here, we have to understand the **Activity Lifecyle**.
 
@@ -125,10 +125,10 @@ ListView todoList = (ListView) findViewById(R.id.todo_list);
 ```
 Next, we will make a list of to-do items to test our view with (next tutorial, we will create a database and instead be loading our items from here).
 
-``java
+```java
 ArrayList<String> todoListItems = new ArrayList<String>();
 
-for (int i = 1; i< = 100; i++){
+for (int i = 1; i< = 50; i++){
     todoListItems.add("Item "+i); //dummy items for testing
 }
 ```
@@ -137,7 +137,34 @@ Next, we need an adapter. An adapter is an object that bridges a view (the XML) 
 
 ```java
 // create an array adapter, pass it the item layout and which items we want it to display
-ArrayAdapter<String> todoListAdapter = new ArrayAdapter<String>(this, R.layout.todo_item, todoListItems);
+ArrayAdapter<String> todoListAdapter = new ArrayAdapter<String>(
+    this, // the context
+    R.layout.todo_item, // the list item layout
+    todoListItems); // the list content
 ```
 
-The `R` (R for resource) is a big object that holds a
+The `R` (R for resource) is a big object that holds all the resources of our app (everything in the `res` folder). The object let's us access all of our resources inside our activities. 
+
+Great, so we have our array adapter, but nothing new shows up on the ListView! This is because we haven't told the list view about the adapter yet. We do that like so:
+
+```java
+todoList.setAdapter(todoListAdapter);
+```
+
+Let's run our app and have a look!
+
+![full list app]()
+
+We're going to revisit this when we have stored data, but for now let's move on to how to make a new activity.
+
+### Adding Another Activity ###
+
+We want to create a new activity that will allow a user create a new item. To do this, right click in the directory view on the side of the project and choose "New -> Activity -> Blank Activity" in Android Studio. I will name this new activity "AddToDoItem", and I will specify it's "Hierearchical Parent" as MainActivity (this means that when a user presses "back" when they are in the AddToDoItem activity, it will take them to the main screen). When we click "Finish", Android Studio will generate files for us. It will create an XML file for the layout of our new activity, as well as a Java file for the logic. It will also edit the `AndroidManifest.xml` file to include the new activity.
+
+![new activity]()
+
+Let's edit the XML file to let a user enter a to-do list item. We'll add title, and EditText view and an "Add" button. Our XML will look like this:
+
+```xml
+
+```
