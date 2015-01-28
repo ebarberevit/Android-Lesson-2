@@ -202,9 +202,9 @@ We're going to revisit this when we have stored data, but for now let's move on 
 
 We want to create a new activity that will allow a user create a new item. To do this, right click in the directory view on the side of the project and choose "New -> Activity -> Blank Activity" in Android Studio. I will name this new activity "AddToDoItem", and I will specify it's "Hierearchical Parent" as MainActivity (this means that when a user presses "back" when they are in the AddToDoItem activity, it will take them to the main screen). When we click "Finish", Android Studio will generate files for us. It will create an XML file for the layout of our new activity, as well as a Java file for the logic. It will also edit the `AndroidManifest.xml` file to include the new activity.
 
-![new activity](https://github.com/hack101/Android-Lesson-2/blob/master/screenshots/new_activity.png)
+![new activity](https://raw.githubusercontent.com/hack101/Android-Lesson-2/master/screenshots/new_activity.png)
 
-![new activity settings](https://raw.githubusercontent.com/hack101/Android-Lesson-2/master/screenshots/new_activity.png)
+![new activity settings](https://raw.githubusercontent.com/hack101/Android-Lesson-2/master/screenshots/new_activity_settings.png)
 
 Let's edit the XML file to let a user enter a to-do list item. We'll add title, and EditText view and an "Add" button. Our XML will look like this:
 
