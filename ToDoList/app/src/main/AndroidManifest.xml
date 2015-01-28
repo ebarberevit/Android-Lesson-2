@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AddToDoItem"
+            android:label="@string/title_activity_add_to_do_item"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="me.amielkollek.todolist.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

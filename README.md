@@ -125,19 +125,30 @@ ListView todoList = (ListView) findViewById(R.id.todo_list);
 ```
 Next, we will make a list of to-do items to test our view with (next tutorial, we will create a database and instead be loading our items from here).
 
-```java
-ArrayList<String> todoListItems = new ArrayList<String>();
+Since we will want to access the list of items later on, we declare the list outside of the `onCreate` method. (The `onCreate` method is only called once).
 
+```java
+private ArrayList<String> todoListItems = new ArrayList<String>();
+```
+
+Inside `onCreate` we make a few dummy list items:
+
+```java
 for (int i = 1; i< = 50; i++){
     todoListItems.add("Item "+i); //dummy items for testing
 }
 ```
 
-Next, we need an adapter. An adapter is an object that bridges a view (the XML) with the data that it is to display (the Java variable). We have a list of items to display so we will we using an ArrayAdapter. To use an adapter, we declare it and tell it which items we want to send to the XML file, and how to format these items.
+Next, we need an adapter. An adapter is an object that bridges a view (the XML) with the data that it is to display (the Java variable). We have a list of items to display so we will we using an ArrayAdapter. To use an adapter, we declare it and tell it which items we want to send to the XML file, and how to format these items. We also will want to access the list adapter later, so this is declared outside `onCreate`.
+
+```java
+ArrayAdapter<String> todoListAdapter;
+```
+And inside `onCreate` we initialize it:
 
 ```java
 // create an array adapter, pass it the item layout and which items we want it to display
-ArrayAdapter<String> todoListAdapter = new ArrayAdapter<String>(
+todoListAdapter = new ArrayAdapter<String>(
     this, // the context
     R.layout.todo_item, // the list item layout
     todoListItems); // the list content
@@ -155,6 +166,35 @@ Let's run our app and have a look!
 
 ![full list app]()
 
+In summary, here is what our main activity looks like now:
+
+```java
+public class MainActivity extends ActionBarActivity {
+
+    private ArrayAdapter<String> todoListAdapter;
+    private ArrayList<String> todoListItems = new ArrayList<String>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ListView todoList = (ListView) findViewById(R.id.todo_list);
+
+        for (int i = 1; i<=50; i++){
+            todoListItems.add("Item "+i); //dummy items for testing
+        }
+
+        todoListAdapter = new ArrayAdapter<String>(
+                this, // the context
+                R.layout.todo_item, // the list item layout
+                todoListItems); // the list content
+
+        todoList.setAdapter(todoListAdapter);
+    }
+}
+```
+
 We're going to revisit this when we have stored data, but for now let's move on to how to make a new activity.
 
 ### Adding Another Activity ###
@@ -166,5 +206,170 @@ We want to create a new activity that will allow a user create a new item. To do
 Let's edit the XML file to let a user enter a to-do list item. We'll add title, and EditText view and an "Add" button. Our XML will look like this:
 
 ```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="me.amielkollek.todolist.AddToDoItem">
 
+    <TextView android:text="@string/add_a_todo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="23dp"
+        android:paddingBottom="50dp"
+        android:paddingTop="50dp"/>
+
+    <EditText android:id="@+id/add_todo_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/add_a_todo_hint"
+        android:paddingBottom="10dp"/>
+
+    <Button android:id="@+id/add_todo_button"
+        android:layout_marginTop="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="@string/add"
+   />
+</LinearLayout>
 ```
+
+We are using a linear layout instead of the realtive layout like we did last time. This means that instead of specifying where each item is placed relative to one another, he items are placed in the order in which they appear in the XML (in this case vertically, because of the `android:orientation="vertical"` orientation attribute).
+
+
+Let's now head over to `AddToDoItem.java` and write some code to grab the entered todo item when the button is pressed. How we do this will look similar to the last tutorial, with one exception. Instead of adding an `onClick` attribute to the XML to call our method, we will put an `onClickListener` in the code. Since we want the button to call our method whenever the activity is open, we will add the `onClickListener` in the `onCreate` method. 
+
+This is what our `onCreate` method will look like:
+
+```java
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_to_do_item);
+
+        // Grab the button view as an object
+        Button addButton = (Button) findViewById(R.id.add_todo_button);
+
+
+        // set an onClick listener
+        addButton.setOnClickListener(
+            new View.OnClickListener(){
+                @Override
+                public void onClick(View view){ // here is our on click function
+                    // Do Stuff Here!!
+                }
+            }
+        );
+    }
+```
+
+Once we learn how to save data, this is where we would do that. We're not there yet, so let's put this aside for now. Besides saving the data, we will also want a user to be returned to the main activity. This raises the question, how do we allow users to switch activities?
+
+### Intents ###
+
+Intents are the objects we use to switch between activities. We will use an intent here to take a user back to the main activity once they are done adding an item. We begin by declaring an intent, and declaring which activity we want it to navigate the user to. We declare our intent like so:
+
+
+```java
+    Intent intent = new Intent(this, MainActivity.class);
+```
+
+Where `this` tells it the context (which activity we are leaving) and `MainActivity.class` tells it the activity we are going to. For our purposes here, we also want to pass some data along with our intent. We want to send the content of the todo list item to the main activity, so we add it to the intent with `putExtra`
+
+```java
+// get the contents of the todo item
+String todoItem = ((EditText) findViewById(R.id.add_todo_text)).getText().toString(); 
+// add them to the intent
+intent.putExtra("TODO_ITEM", todoItem)
+```
+
+The first argument acts as a unique identifier for the piece of information I am sending, and the second argument is the information itself. All that's left to do is to actually start the activity! We do this by calling `startActivity(intent)`. In all, our `onCreate` method looks like this:
+
+```java
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_to_do_item);
+
+        Button addButton = (Button) findViewById(R.id.add_todo_button);
+
+        final Intent intent = new Intent(this, MainActivity.class);
+
+        String todoItem = ((EditText) findViewById(R.id.add_todo_text)).getText().toString();
+        intent.putExtra("me.amielkollek.todolist.ToDoItem", todoItem);
+
+        addButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(intent);
+                    }
+                }
+        );
+    }
+```
+
+We declare the intent as `final` as we are using it in the inner class `OnClickListener`. 
+
+Great, we're done with the `AddToDoItem` activity. But there's a problem. There's no way for the user to access this activity! We need another intent. Let's add a button to the main activity:
+
+```xml
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <TextView android:id="@+id/title"
+        android:text="@string/title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:gravity="center"
+        android:paddingBottom="5dp"/>
+
+    <Button android:id="@+id/add_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:text="@string/add_a_todo"/>
+    
+    <ListView android:id="@+id/todo_list"
+        android:layout_below="@id/add_button"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+    </ListView>
+</RelativeLayout>
+```
+And let's add a listener to the button so that it can open the `AddToDoItem` activity. Inside the MainActivity class' `onCreate` method:
+
+```java
+        Button addButton = (Button) findViewById(R.id.add_button);
+        final Intent intent = new Intent(this, AddToDoItem.class);
+
+        addButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(intent);
+                    }
+                }
+        );
+```
+
+If we run our app, we'll see that the switching between activities works! 
+
+![list view]()
+
+![add view]()
+
+That's it for now! In the next tutorial we will create a database of list items and user's will be able to store and delete items!
+
